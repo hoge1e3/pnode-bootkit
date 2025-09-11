@@ -55,7 +55,7 @@ export async function networkBoot(url){
     }
     process.env.boot=boot;
     process.env.installation=rescue?"rescue":"install";
-    const c=getValue("vConsole");
+    const c=await getValue("readyPromises").vConsole;
     if (c) c.show();
     await unzipURL(url, boot);
     status("Boot start!");
@@ -82,15 +82,17 @@ export function insertBootDisk() {
     //const cas=document.querySelector("#casette");
     const file=qsExists(cas, ".file");
     file.addEventListener("input",async function () {
-        const run=pNode.file(process.env.boot);
+        const run=pNode.file(process.env.RESCUE_DIR);
         const file=this.files && this.files[0];
         if (!file) throw new Error("File is not selected.");
-        getGlobal().vConsole?.show();
+        const c=await getValue("readyPromises").vConsole;
+        c?.show();
         await unzipBlob(file,run);
-        getGlobal().vConsole?.hide();
+        c?.hide();
         rmbtn();
         showModal(false);
-        pNode.importModule(fixrun(run));
+        const mod=await pNode.importModule(fixrun(run));
+        if(can(mod,"install")) mod.install();
     });
 }
 export async function resetall(a){

@@ -11,7 +11,7 @@ const PNODE_URL=`https://cdn.jsdelivr.net/npm/petit-node@${PNODE_VER}/dist/index
 onReady(onload);
 pollute({prefetchScript});
 assign({
-    readyPromise: {
+    readyPromises: {
         vConsole: mutablePromise(),
         zip: mutablePromise(),
         fs: getMountPromise(),
@@ -53,7 +53,7 @@ function initVConsole(){
     const vConsole=new VConsole();
     assignDefault({vConsole});
     vConsole.hideSwitch();
-    getValue("readyPromise").vConsole.resolve(vConsole);
+    getValue("readyPromises").vConsole.resolve(vConsole);
 }
 function prefetch(){
     const cdn="https://cdn.jsdelivr.net/npm/";//"https://unpkg.com/"

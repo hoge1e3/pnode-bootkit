@@ -1,5 +1,5 @@
 //@ts-check
-import { prefetchAuto , getPrefetchedAutoURL,doQuick } from "./prefetcher.js";
+import { prefetchAuto , prefetchModule, getPrefetchedAutoURL,doQuick } from "./prefetcher.js";
 import { qsExists, timeout } from "./util.js";
 import { getInstance } from "./pnode.js";
 import {mutablePromise,can} from "./util.js";
@@ -81,7 +81,15 @@ export function initAutoexec(rp) {
             prefetchAuto({mainF});
         }
     }
-    
+    if (o.prefetch) {
+        try {
+            for (let m of o.prefetch) {
+                prefetchModule(FS.get(m));
+            }
+        } catch(e){
+            console.error(e);
+        }
+    }
 }
 export function showMainmenus(rp) {
     const o=rp.obj();
