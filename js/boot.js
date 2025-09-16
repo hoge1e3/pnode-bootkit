@@ -2,13 +2,15 @@
 import { getGlobal,getValue } from "./global.js";
 import { getInstance } from "./pnode.js";
 import { qsExists, timeout,can } from "./util.js";
-import { getMountPromise } from "./fstab.js";
+import { getMountPromise,readFstab } from "./fstab.js";
 
 let rmbtn=()=>0;
 let showModal=(show)=>0;
+let splash=(mesg, dom)=>0;
 export function wireUI(dc){
   rmbtn=dc.rmbtn;
   showModal=dc.showModal;
+  splash=dc.splash;
 }
 function status(...a){
     console.log(...a);
@@ -97,13 +99,37 @@ export function insertBootDisk() {
 }
 export async function resetall(a){
     if(prompt("type 'really' to clear all data")!=="really")return;
+    const sp=showModal(".splash");
+    await splash("deleting...",sp);
+    const tab=readFstab();
+    const pNode=getInstance();
+    const FS=pNode.getFS();
+    for (let {mountPoint,fsType,options} of tab) {
+      if(fsType==="idb"){
+        console.log("DELETING", mountPoint);
+        for(let f of pNode.file(mountPoint).listFiles()){
+          console.log("DELETING", f.path());
+          f.rm({r:true});
+        }
+      }
+    }
     for(let k in localStorage){
         delete localStorage[k];
     }
     localStorage["/"]="{}";
+    const r=FS.getRootFS();
+    while(r.hasUncommited()) {
+        await timeout(100);
+    }
+    showModal();
+    location.reload();
 }
 export async function fullBackup(){
     const pNode=getInstance();
     const FS=pNode.getFS();
+      const sp=showModal(".splash");
+  await splash("zipping...",sp);
+
     await FS.zip.zip(FS.get("/"));
+    showModal();
 }

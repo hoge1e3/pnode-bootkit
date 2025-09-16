@@ -37,7 +37,7 @@ export function rmbtn(){
     }
     doQuick();
 }
-wireUI({rmbtn,showModal});
+wireUI({rmbtn,showModal,splash});
 export function showMenus(rp){
     if(rp.exists()){
         showMainmenus(rp);
