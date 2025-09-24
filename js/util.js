@@ -1,4 +1,10 @@
 //@ts-check
+/**
+ * 
+ * @param {string} key 
+ * @param {string|undefined} default_ 
+ * @returns {string|undefined}
+ */
 export function getQueryString(key, default_) {
     if (arguments.length === 1) default_ = "";
     key = key.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
@@ -6,19 +12,34 @@ export function getQueryString(key, default_) {
     var qs = regex.exec(location.href);
     if (qs == null) return default_;else return decodeURLComponentEx(qs[1]);
 }
+/**
+ * 
+ * @param {string} s 
+ * @returns {string}
+ */
 export function decodeURLComponentEx(s) {
     return decodeURIComponent(s.replace(/\+/g, '%20'));
 }
+/**
+ * @param {(this:Window,e:Event)=>any} callback 
+ */
 export function onReady(callback) {
-    if (document.readyState==="complete") callback();
+    if (document.readyState==="complete") callback.call(window,new Event("load"));
     else addEventListener("load",callback);
 }
+/**
+ * @param {any} o 
+ * @param {string} n 
+ */
 export function can(o,n){
   return n in o && typeof o[n]==="function" && o[n];
 }
+/** @type (t:number)=>Promise<void> */
 export const timeout=(t)=>new Promise(s=>setTimeout(s,t));
+/**@type ()=>import("./types").MutablePromise<any> */
 function mp(){
     const t=()=>{
+        //@ts-ignore
         let v=t,f,c=()=>v!==t&&f&&f(v);
         // @ts-ignore
         return{v:(_)=>c(v=_),f:(_)=>c(f=_)};
@@ -27,6 +48,7 @@ function mp(){
     {resolve:s.v, reject:e.v});
 }
 export const mutablePromise=mp;
+/**@type (o:any)=>boolean */
 export function isPlainObject(o) {
     return o && o.__proto__===Object.prototype;
 }
@@ -76,4 +98,14 @@ export function deleteAllTablesInDatabase(dbName) {
       reject(`Failed to open the database "${dbName}": ${event.target.error}`);
     };
   });
+}
+/**
+ * 
+ * @param {string} n 
+ * @returns string
+ */
+export function getEnv(n){
+  const r=process.env[n];
+  if (!r) throw new Error(`No envvar for ${n}`);
+  return r;
 }

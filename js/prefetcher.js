@@ -1,7 +1,21 @@
 //@ts-check
+/**
+ * @typedef { import("./types").SFile } SFile
+ * @typedef { import("./types").Menus } Menus
+ * @typedef { import("./types").Menu } Menu
+ * @typedef { import("./types").ShowModal } ShowModal
+ * @typedef { import("./types").RootPackageJSON } RootPackageJSON
+ * @typedef { import("./types").PNode } PNode
+ * @typedef { import("./types").PNodeCompileHandler } PNodeCompileHandler
+ */
+/** @type any */
+const g=globalThis;
+
 import {mutablePromise,timeout} from "./util.js";
 import { getInstance } from "./pnode.js";
+/**@type boolean */
 let quick;
+/**@type PNodeCompileHandler */
 const handlers={
     async oncompilestart({entry}) {
         if(quick)return;
@@ -20,8 +34,13 @@ const handlers={
     }
 };
 export function doQuick() {
-  quick=1;
+  quick=true;
 }
+/**
+ * 
+ * @param {SFile} file 
+ * @returns Promise<PNodeModule>
+ */
 export async function prefetchModule(file) {
     const pNode=getInstance();
     const e=pNode.resolveEntry(file);
@@ -33,7 +52,7 @@ let prefetched_auto_url=mutablePromise();
 export function getPrefetchedAutoURL() {
     return prefetched_auto_url;
 }
-export async function prefetchAuto({mainF}) {
+/*export async function prefetchAuto({mainF}) {
     try {
         const r=await prefetchModule(mainF);
         prefetched_auto_url.resolve(r.url);
@@ -42,7 +61,13 @@ export async function prefetchAuto({mainF}) {
         prefetched_auto_url.reject(e);
         console.error(e);
     }
-}
+}*/
+/**
+ * 
+ * @param {string} url 
+ * @param {any} attr 
+ * @returns 
+ */
 export function loadScriptTag(url,attr={}){
     if (attr.type!=="module" && 
     // @ts-ignore
@@ -63,7 +88,14 @@ export function loadScriptTag(url,attr={}){
         document.head.appendChild(script);
     });
 }
+/**@type {{[key:string]:{value:any}}} */
 export const prefetched={};// {[key:url]:{value}}
+/**
+ * 
+ * @param {string} url 
+ * @param {import("./types").PrefetchScriptOptions} [options]
+ * @returns 
+ */
 export async function prefetchScript(url, options) {
     const {module, global, }=options||{};
     if (prefetched[url]) {
@@ -79,7 +111,7 @@ export async function prefetchScript(url, options) {
         return prefetched[url];
     } else {
         await loadScriptTag(url);
-        const value=(global?globalThis[global]:null);
+        const value=(global?g[global]:null);
         prefetched[url]={value};
         return prefetched[url];
     }

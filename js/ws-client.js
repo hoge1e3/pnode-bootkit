@@ -1,9 +1,23 @@
 //@ts-check
+/** 
+ * @typedef { import("./types").SFile } SFile
+ * @typedef { import("./types").Menus } Menus
+ * @typedef { import("./types").Menu } Menu
+ * @typedef { import("./types").ShowModal } ShowModal
+ * @typedef { import("./types").RootPackageJSON } RootPackageJSON
+ * @typedef { import("./types.js").WSFileInfo } WSFileInfo
+ */
 import { mutablePromise } from "./util.js";
+/**
+ * 
+ * @param {SFile} home 
+ * @returns 
+ */
 export function init(home) {
     const mp=mutablePromise();
     const ws = new WebSocket("ws://localhost:8080");
     //const files = {}; // path -> {mtime, content}
+    /**@type (...a:any[])=>void */
     const log=(...a)=>console.log("websocket",...a);
     ws.addEventListener("open", () => {
         log("connected");
@@ -70,11 +84,22 @@ export function init(home) {
         });
     }
 
-    // --- API ---
+    /**
+     * 
+     * @param {string} path 
+     * @returns 
+     */
     function readFile(path) {
         const f=home.rel(path);
         return f.exists() ? {mtime: f.lastUpdate(), content:f.dataURL()} : null ;// files[path] || null;
     }
+    /**
+     * 
+     * @param {string} path 
+     * @param {WSFileInfo} info 
+     * @param {boolean} nosend 
+     * @returns 
+     */
     function writeFile(path, info, nosend) {
         const f=home.rel(path);
         //console.log("path-info",path, info);
@@ -87,6 +112,12 @@ export function init(home) {
             info
         }));
     }
+    /**
+     * 
+     * @param {string} path 
+     * @param {boolean} nosend 
+     * @returns {WSFileInfo|undefined}
+     */
     function deleteFile(path, nosend) {
         const f=home.rel(path);
         if (!f.exists()) return;

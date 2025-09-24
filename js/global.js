@@ -1,17 +1,31 @@
+//@ts-check
 import { isPlainObject } from "./util.js";
 
+/** @type any */
+const g=globalThis;
+/** @type any */
 const pNodeBootLoader=globalThis.pNodeBootLoader||{};
 globalThis.pNodeBootLoader=pNodeBootLoader;
 export function getGlobal() {
     return pNodeBootLoader;
 }
+/**
+ * @param {string} k 
+ * @returns any
+ */
 export function getValue(k) {
-    return pNodeBootLoader[k] || globalThis[k];
+    return pNodeBootLoader[k] || g[k];
 }
+/**
+ * @param {object} o 
+ */
 export function pollute(o) {
     assign(o, pNodeBootLoader);
     assign(o, globalThis);
 }
+/**
+ * @param {any} o 
+ */
 export function assign(o, dst=pNodeBootLoader) {
     for (let k in o) {
         if (isPlainObject(o[k]) && isPlainObject(dst[k])) {
@@ -21,6 +35,9 @@ export function assign(o, dst=pNodeBootLoader) {
         }
     }
 }
+/**
+ * @param {any} o 
+ */
 export function assignDefault(o, dst=pNodeBootLoader) {
     for (let k in o) {
         if (isPlainObject(o[k]) && isPlainObject(dst[k])) {

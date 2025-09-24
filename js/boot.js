@@ -1,14 +1,24 @@
 //@ts-check
+/** 
+ * @typedef { import("./types").SFile } SFile
+ * @typedef { import("./types").Menus } Menus
+ * @typedef { import("./types").Menu } Menu
+ * @typedef { import("./types").ShowModal } ShowModal
+ * @typedef { import("./types").Splash } Splash
+ * @typedef { import("./types").WireUIDC } WireUIDC
+ * @typedef { import("./types").RootPackageJSON } RootPackageJSON
+ * @typedef { import("./types.js").WSFileInfo } WSFileInfo
+ */
 import { getGlobal,getValue } from "./global.js";
 import { getInstance } from "./pnode.js";
-import { qsExists, timeout,can, deleteAllTablesInDatabase } from "./util.js";
+import { qsExists, timeout,can, deleteAllTablesInDatabase, getEnv } from "./util.js";
 import { getMountPromise,readFstab } from "./fstab.js";
 
 let rmbtn=()=>{};
 /**@type ShowModal */
 let showModal=(show)=>document.body;
 /**@type Splash */
-let splash=(mesg, dom)=>{};
+let splash=async (mesg, dom)=>{};
 /**@type (dc:WireUIDC)=>void*/
 export function wireUI(dc){
   rmbtn=dc.rmbtn;
@@ -56,14 +66,14 @@ export function fixrun(run){
 export async function networkBoot(url){
     await getMountPromise();
     const pNode=getInstance();
-    let boot=pNode.file(process.env.INSTALL_DIR);
+    let boot=pNode.file(getEnv("INSTALL_DIR"));
     let rescue=false;
     if (boot.exists()) {
         if (!confirm(`Found installation in '${process.env.INSTALL_DIR}'. Boot with Rescue mode in '${process.env.RESCUE_DIR}'.`)) return;
-        boot=pNode.file(process.env.RESCUE_DIR);
+        boot=pNode.file(getEnv("RESCUE_DIR"));
         rescue=true;
     }
-    process.env.boot=boot;
+    process.env.boot=boot.path();
     process.env.installation=rescue?"rescue":"install";
     const c=await getValue("readyPromises").vConsole;
     if (c) c.show();
@@ -92,7 +102,7 @@ export function insertBootDisk() {
     //const cas=document.querySelector("#casette");
     const file=qsExists(cas, ".file");
     file.addEventListener("input",async function () {
-        const run=pNode.file(process.env.RESCUE_DIR);
+        const run=pNode.file(getEnv("RESCUE_DIR"));
         //@ts-ignore
         const file=this.files && this.files[0];
         if (!file) throw new Error("File is not selected.");

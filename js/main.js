@@ -2,13 +2,14 @@
 import { onReady, timeout, mutablePromise } from "./util.js";
 import { init } from "./pnode.js";
 import { getMountPromise, mount } from "./fstab.js";
-import {showMenus, initAutoexec, showModal, splash}from "./menu.js";
+import {showMenus, initAutoexec}from "./menu.js";
 import { prefetchScript } from "./prefetcher.js";
 import {installPWA } from "./pwa.js";
 import {getValue, assignDefault, assign, pollute} from "./global.js";
+import { showModal, splash } from "./ui.js";
 const PNODE_VER=getValue("PNODE_VER");
 const PNODE_URL=location.href.match(/localhost.*pnode-bootkit/)?
-`../../petit-node/dist/index.js`:
+`../../petit-node/dist/index.js?aaa`:
 `https://cdn.jsdelivr.net/npm/petit-node@${PNODE_VER}/dist/index.js`;
 onReady(onload);
 pollute({prefetchScript});
