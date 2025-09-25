@@ -39,6 +39,9 @@ async function onload() {
         INSTALL_DIR:"/idb/run",
         RESCUE_DIR:"/tmp/run",
     });
+    getValue("readyPromises").vConsole.then(()=>{
+        console.log("petit-node ver.",pNode.version);
+    });
     const FS=pNode.getFS();
     const rp=FS.get("/package.json");
     showModal();

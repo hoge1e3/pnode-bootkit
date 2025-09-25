@@ -25,7 +25,7 @@ const handlers={
     async oncompiled({module}) {
         if(quick)return;
         await timeout(0);
-        console.log("Compile complete ",module.entry.file.path());
+        //console.log("Compile complete ",module.entry.file.path());
     },
     async oncachehit({entry}) {
         if(quick)return;
