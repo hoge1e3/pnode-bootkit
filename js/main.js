@@ -2,7 +2,7 @@
 import { onReady, timeout, mutablePromise } from "./util.js";
 import { init } from "./pnode.js";
 import { getMountPromise, mount } from "./fstab.js";
-import {showMenus, initAutoexec}from "./menu.js";
+import {showMenus, scanPrefetchModule}from "./menu.js";
 import { prefetchScript } from "./prefetcher.js";
 import {installPWA } from "./pwa.js";
 import {getValue, assignDefault, assign, pollute} from "./global.js";
@@ -52,7 +52,7 @@ async function onload() {
     console.log("Mounting RAM/IDB");
     await mount();
     console.log("Mounted. ",performance.now()-ti,"msec taken.");
-    initAutoexec(rp);
+    scanPrefetchModule(rp);
 }
 function initVConsole(){
     const VConsole=getValue("VConsole");

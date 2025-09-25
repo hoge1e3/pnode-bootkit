@@ -9,7 +9,7 @@
  * @typedef { import("./types").RootPackageJSON } RootPackageJSON
  * @typedef { import("./types.js").WSFileInfo } WSFileInfo
  */
-import { getGlobal,getValue } from "./global.js";
+import { getValue } from "./global.js";
 import { getInstance } from "./pnode.js";
 import { qsExists, timeout,can, deleteAllTablesInDatabase, getEnv } from "./util.js";
 import { getMountPromise,readFstab } from "./fstab.js";
@@ -87,19 +87,12 @@ export async function networkBoot(url){
 }
 export function insertBootDisk() {
     const pNode=getInstance();
-    const cas=showModal(".upload");/*qsExists(".modal-container");
-    modal.setAttribute("style","");*/
-    //const cas=qsExists(".modal-dialog.upload");//createElement("input");
-    //cas.setAttribute("style","");
-    //document.body.appendChild(cas);
+    const cas=showModal(".upload");
     if (process.env.BOOT_DISK_URL) {
         const a=qsExists(cas, "a");
-        //const dl=document.createElement("div");
         a.innerHTML="Download Sample Boot Disk";
         a.setAttribute("href",process.env.BOOT_DISK_URL);
-        //document.body.appendChild(dl);
     }
-    //const cas=document.querySelector("#casette");
     const file=qsExists(cas, ".file");
     file.addEventListener("input",async function () {
         const run=pNode.file(getEnv("RESCUE_DIR"));

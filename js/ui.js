@@ -70,7 +70,11 @@ export function btn(c,a/*,auto*/){
     };
     b.addEventListener("click", act);	    
 }
-
+export function rmbtn(){
+  for(let b of document.querySelectorAll('button')){
+      b.parentNode?.removeChild(b);
+  }
+}
 /**
  * @param {string} mesg 
  * @param {HTMLElement} sp 

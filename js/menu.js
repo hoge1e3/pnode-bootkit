@@ -14,12 +14,10 @@ import {networkBoot,insertBootDisk,
 resetall,fullBackup,fixrun,wireUI} from "./boot.js";
 import {getMountPromise} from "./fstab.js";
 import { getValue } from "./global.js";
-import { btn, showModal, splash } from "./ui.js";
+import { btn, showModal, splash, rmbtn as rmbtnWithoutQuick } from "./ui.js";
 
 export function rmbtn(){
-    for(let b of document.querySelectorAll('button')){
-        b.parentNode?.removeChild(b);
-    }
+    rmbtnWithoutQuick();
     doQuick();
 }
 wireUI({rmbtn,showModal,splash});
@@ -54,23 +52,13 @@ export function parseMenus(menus){
     return menus;
 }
 /**@param {SFile} rp */
-export function initAutoexec(rp) {
-  const pNode=getInstance();
-  const FS=pNode.getFS();
-
+export function scanPrefetchModule(rp) {
+      const pNode=getInstance();
+    const FS=pNode.getFS();
     if (!rp.exists()) return;
     /**@type {RootPackageJSON}*/
     const o=rp.obj();
-    //console.log("rp.obj",o);
     if(!o.menus) return;
-    const menus=parseMenus(o.menus);
-    for(let k in menus){
-        const {main,auto, submenus}=menus[k];
-        const mainF=fixrun(FS.get(main));
-        /*if (auto) {
-            prefetchAuto({mainF});
-        }*/
-    }
     if (o.prefetch) {
         try {
             for (let m of o.prefetch) {
