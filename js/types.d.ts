@@ -25,7 +25,7 @@ export type PNode={
     getFS():TFS
     importModule(f:SFile):any;
     file(path:string):SFile;
-    resolveEntry(f:SFile):Entry;
+    resolveEntry(wantModuleType:"ES"|"CJS",f:SFile):Entry;
     ESModuleCompiler:{
         create(handlers:PNodeCompileHandler):{
             compile(e:Entry):Promise<PNodeModule>;        
