@@ -43,7 +43,7 @@ export function doQuick() {
  */
 export async function prefetchModule(file) {
     const pNode=getInstance();
-    const e=pNode.resolveEntry(file);
+    const e=pNode.resolveEntry("ES",file);
     const compiler=pNode.ESModuleCompiler.create(handlers);
     const r=await compiler.compile(e);
     return r;
