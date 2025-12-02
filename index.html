@@ -9,7 +9,9 @@ const alerts=(...a)=>{
     if (alc>=5) return;
     return alert(...a);
 };
-window.addEventListener('error', function(event) {
+window.addEventListener('error',err,true); 
+window.addEventListener('unhandledrejection',err,true); 
+function err (event) {
     if (event.target.tagName === 'SCRIPT') {
         alert('Script error:'+event.target.src);
     }
@@ -17,11 +19,15 @@ window.addEventListener('error', function(event) {
         const e=event.error;
         console.error(e);
         alerts(((e.message||"")+(e.stack||""))||e.toString());
+    } if (event.reason) {
+      console.log(event);
+      alerts(event.reason);
     } else {
         console.error(event);
         alerts(event.message||event.toString());
     }
-}, true);</script>
+}
+</script>
 <link rel="stylesheet" href="css/style.css"/>
 <!--link rel="stylesheet" href="css/file-icon.css"/-->
 <link rel="manifest" href="./manifest.json"/>
@@ -42,7 +48,7 @@ window.addEventListener('error', function(event) {
     </div>
   </div>
   <script type="module">
-globalThis.PNODE_VER="1.5.7";
+globalThis.PNODE_VER="1.6.1";
 const src=`./js/main.js?${globalThis.PNODE_VER}`;
 import(src);
   </script>

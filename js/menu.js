@@ -11,10 +11,12 @@ import { /*prefetchAuto ,*/ prefetchModule, doQuick } from "./prefetcher.js";
 import { getInstance } from "./pnode.js";
 
 import {networkBoot,insertBootDisk,
-resetall,fullBackup,fixrun,wireUI} from "./boot.js";
+fixrun,wireUI} from "./boot.js";
 import {getMountPromise} from "./fstab.js";
 import { getValue } from "./global.js";
-import { btn, showModal, splash, rmbtn as rmbtnWithoutQuick } from "./ui.js";
+import { btn, showModal, splash, rmbtn as rmbtnWithoutQuick, uploadFile } from "./ui.js";
+import { fullBackup, factoryReset, fullRestore } from "./backup.js";
+import { blob2arrayBuffer } from "./util.js";
 
 export function rmbtn(){
     rmbtnWithoutQuick();
@@ -24,20 +26,36 @@ wireUI({rmbtn,showModal,splash});
 /** @type (rp:SFile)=>void */
 export function showMenus(rootPkgJson){
     const pNode=getInstance();
-    const FS=pNode.getFS();
+    //const FS=pNode.getFS();
     
     
     if(rootPkgJson.exists()){
-        showMainmenus(rootPkgJson);
-        //showSubmenus(rp);
+        // ensure factory reset, evan if failed by file system inconsistency. 
+        // (for example, /package.json entry is in / but not in localStorage)
+        try{
+            showMainmenus(rootPkgJson);
+        }catch(e) {
+            console.error(e);
+            alert(e);
+        }
     }
     const su=process.env.SETUP_URL;
     if (su) {
         btn(["💿","Install/Rescue"],()=>networkBoot(su));
     }
     btn(["💾","Insert Boot Disk"],()=>insertBootDisk());
-    btn(["💣","Factory Reset"],()=>resetall());
+    btn(["💣","Factory Reset"],async ()=>{
+        if(prompt("type 'really' to clear all data")!=="really")return;
+        await factoryReset();
+        if (confirm("Factory reset complete. reload?")) location.reload();
+    });
     btn(["📦","Full backup"],()=>fullBackup());
+    btn(["📦","Full restore"],async ()=>{
+        const blob=await uploadFile();
+        const arrayBuffer=await blob2arrayBuffer(blob);
+        await fullRestore(arrayBuffer);
+        if (confirm("Full restore complete. reload?")) location.reload();
+    });
     btn(["💻","Console"],()=>showConsole());
     //console.log("rp",rp.exists());
 }

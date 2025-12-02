@@ -6,6 +6,7 @@ export type SFile={
     isDir():boolean;
     ls():string[];
     rel(path:string):SFile;
+    clone(abspath:string):SFile;
     path():string;
     relPath(base:SFile):string;
     lastUpdate():number;
@@ -19,11 +20,24 @@ export type WSFileInfo={
     content:string;
     mtime:number;
 };
+export type NodeLikeFs=typeof import("node:fs") & {
+    mount(mountPoint:string,fsType:string,options?:any):Promise<FileSystem>;
+    unmount(mountPoint:string):Promise<FileSystem>;
+    fstab():FileSystem[];
+    commitPromise():Promise<void>;
+    promises:{
+        readdir(path:string):Promise<string[]>
+    }
+};
 export type PNode={
     boot():Promise<void>;
     version:string;
-    getFS():TFS
-    importModule(f:SFile):any;
+    getFS():TFS;
+    getNodeLikeFs():NodeLikeFs;
+    getCore():{
+        fs: NodeLikeFs
+    }
+    importModule(f:SFile|string):any;
     file(path:string):SFile;
     resolveEntry(wantModuleType:"ES"|"CJS",f:SFile):Entry;
     ESModuleCompiler:{
@@ -38,6 +52,7 @@ export type RootFS={
     fstab(): FileSystem[];
     hasUncommited():boolean;
     commitPromise():Promise<void>;
+    unmount(mountedPoint:string):void;
 };
 export type TFS={
     get(path:string):SFile;
@@ -99,7 +114,7 @@ export abstract class FileSystem {
     abstract hasUncommited():boolean;
     abstract commitPromise():Promise<void>;
     abstract isReadOnly(path:string):boolean;
-    resolveFS(path:string):FileSystem;
+    //resolveFS(path:string):FileSystem;
     mountPoint: string;
     inMYFS(path:string):boolean;
     getRootFS():RootFS;
@@ -117,13 +132,14 @@ export abstract class FileSystem {
     abstract opendir(path:string):string[];
     //abstract opendirent(path:string):Dirent[];
     //abstract direntOfMountPoint():Dirent;
-    copyFile(path:string, dst:string):void;
+    //copyFile(path:string, dst:string):void;
     abstract rm(path:string):void;
     link(path:string, to:string):void;
     abstract isLink(path:string):string|undefined;
     onAddObserver(path:string):void;
     //static addFSType(name:string, factory:FSFactory|AsyncFSFactory, asyncOptions?:AsyncOptions):void;
     inMyFS(path:string):boolean;
+    storage?: MultiSyncIDBStorage;
 }
 export declare class MultiSyncIDBStorage /*implements IStorage*/ {
     private storage;

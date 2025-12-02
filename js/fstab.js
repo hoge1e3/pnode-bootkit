@@ -20,57 +20,34 @@ export function readFstab(path="/fstab.json") {
     if (f.exists()) return f.obj();
     return defaultFSTab;
 }
+export async function reload(path="/fstab.json") {
+    await unmountExceptRoot();
+    // fstab.json does NOT contains root
+    await mount();
+}
+export async function unmountExceptRoot(){
+    const pNode=getInstance();
+    const fs=pNode.getNodeLikeFs();
+    const mounted=fs.fstab().filter(f=>f.mountPoint!=="/").map(f=>f.mountPoint);
+    for (let m of mounted){
+        fs.unmount(m);
+    }
+}
+export async function wakeLazies(){
+    const pNode=getInstance();
+    const fs=pNode.getNodeLikeFs();
+    const mounted=fs.fstab();
+    for (let m of mounted) {
+        await fs.promises.readdir(m.mountPoint);
+    }
+}
 export async function mount(path="/fstab.json") {
     const pNode=getInstance();
-    const FS=pNode.getFS();
-    const useWS=location.href.match(/localhost/);
+    const _fs=pNode.getNodeLikeFs();
     const tab=readFstab(path);
-    let wsMountPoint;
-    
     for (let {mountPoint,fsType,options} of tab) {
-        const fs=await FS.mountAsync(mountPoint,fsType,options);
-        if (useWS) {
-            if (fsType==="idb" && mountPoint.match(/^\/idb\b/) && !wsMountPoint) {
-                wsMountPoint=mountPoint;
-                console.log("wsMountPoint", wsMountPoint);
-                /** @ts-ignore */
-                const storage=fs.storage;
-                if (storage) {
-                    removeAllFromIDB(storage, mountPoint);
-                }
-            }
-        }
-    }
-    if (wsMountPoint){ 
-        const ws=await import("./ws-client.js");
-        await ws.init(FS.get(wsMountPoint));
-        await FS.getRootFS().commitPromise();
-        const rootPkgJson=FS.get("/package.json");
-        if (!rootPkgJson.exists() && process.env.INSTALL_DIR && FS.get(process.env.INSTALL_DIR).exists()) {
-            rootPkgJson.obj({
-                menus: {
-                    run: {
-                        main: process.env.INSTALL_DIR,
-                        call: ["main"],
-                    }
-                }
-            });
-            alert(`Websocket sync dir is available on ${process.env.INSTALL_DIR}. Reload to show launch menu.`);
-        }
+        // FS.mountAsync does not clear _fs.linkCache
+        await _fs.mount(mountPoint,fsType,options);
     }
     mountPromise.resolve();
-}
-/**
- * @param storage {MultiSyncIDBStorage}
- * @param mountPoint {string}
- */
-export async function removeAllFromIDB(storage, mountPoint) {
-    mountPoint=directorify(mountPoint);
-    for (let k of storage.keys()) {
-        //console.log(k); 
-        if (k==mountPoint) continue;
-        storage.removeItem(k);
-    }
-    storage.setItem(mountPoint, "{}"); 
-    await storage.waitForCommit();
 }
