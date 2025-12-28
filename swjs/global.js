@@ -55,5 +55,5 @@ assignDefault({
     assignDefault,
     pollute,
     env:{},
-    readyPromsise:{},
+    readyPromises:{},
 });
