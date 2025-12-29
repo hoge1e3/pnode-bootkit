@@ -3,9 +3,10 @@ import { isPlainObject } from "./util.js";
 
 /** @type any */
 const g=globalThis;
+const NAME="pNodeBootLoader";
 /** @type any */
-const pNodeBootLoader=g.pNodeBootLoader||{};
-g.pNodeBootLoader=pNodeBootLoader;
+const pNodeBootLoader=g[NAME]||{};
+g[NAME]=pNodeBootLoader;
 export function getGlobal() {
     return pNodeBootLoader;
 }

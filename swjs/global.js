@@ -3,7 +3,7 @@ import { isPlainObject } from "./util.js";
 
 /** @type {any} */
 const g=globalThis;
-const NAME="serviceWorkerKit";
+const NAME="pNodeBootLoader";
 /** @type any */
 const serviceWorkerKit=g[NAME]||{};
 g[NAME]=serviceWorkerKit;
